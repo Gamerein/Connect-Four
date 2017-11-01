@@ -1,0 +1,27 @@
+{
+  "name": "connect-four-bot",
+  "version": "0.1.0",
+  "description": "A Connect Four bot in Discord.",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gamerein/Connect-Four.git"
+  },
+  "keywords": [
+    "Connect",
+    "Four",
+    "Discord",
+    "Bot",
+    "Discord",
+    "Bot"
+  ],
+  "author": "Gamerein",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gamerein/Connect-Four/issues"
+  },
+  "homepage": "https://github.com/Gamerein/Connect-Four#readme"
+}
