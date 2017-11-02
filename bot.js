@@ -11,7 +11,7 @@ bot.on('ready', function(event) {
     console.log('Logged in as %s - %s\n', bot.username, bot.id);
 });
 
-bot.setPrescence({game: {type: 0, name: "\"cf start\""}});
+//bot.setPrescence({game: {type: 0, name: "cf start"}});
 
 var circle = ":black_circle: ";
 prefix = "cf";
@@ -36,7 +36,7 @@ var gs6 = [circle, circle, circle, circle, circle, circle, circle];
 bot.on("message", function (user, userID, channelID, message, event)
 {
     var author = event.d.author.username
-    if (message.substring(0, prefix.length) == prefix) 
+    if (message.substring(0, prefix.length) == prefix)
     {
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();
@@ -165,7 +165,8 @@ bot.on("message", function (user, userID, channelID, message, event)
         command = command.toLowerCase();
 
         if(command == "invite")
-            bot.sendMessage({to: channelID, message: " https://discordapp.com/oauth2/authorize?client_id=374338545185193984&scope=bot&permissions=3072   "})
         {
+            bot.sendMessage({to: channelID, message: " https://discordapp.com/oauth2/authorize?client_id=374338545185193984&scope=bot&permissions=3072"});
+        }
     }
 });
