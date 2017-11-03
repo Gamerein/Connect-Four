@@ -1,4 +1,7 @@
-//todo: give start attributes, like emoticon choices
+//todo: give start attributes, like emoticon choices. 
+// Use the Game.present stuff
+// Make a help
+// Give message on `cf reset`
 
 var Discord = require('discord.io');
 
@@ -84,6 +87,8 @@ bot.on("message", function (user, userID, channelID, message, event)
         if (command == "reset")
         {
             Game.present = false
+            Game.player1 = null
+            Game.player2 = null
             gs1 = [circle, circle, circle, circle, circle, circle, circle];
             gs2 = [circle, circle, circle, circle, circle, circle, circle];
             gs3 = [circle, circle, circle, circle, circle, circle, circle];
