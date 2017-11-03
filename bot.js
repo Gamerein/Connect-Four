@@ -78,7 +78,7 @@ bot.on("message", function (user, userID, channelID, message, event)
         if(command == "show" && Game.present == true)
         {
             draw();
-        } else if(command == "show" && Game.present == fasle){
+        } else if(command == "show" && Game.present == false){
             bot.sendMessage({to: channelID, message: "no game started"});
         }
     }
