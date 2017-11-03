@@ -1,6 +1,6 @@
 {
   "name": "connect-four-bot",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "A Connect Four bot in Discord.",
   "main": "bot.js",
   "scripts": {
