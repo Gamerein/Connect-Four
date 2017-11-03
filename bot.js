@@ -12,12 +12,12 @@ bot.on('ready', function(event) {
     console.log('Logged in as %s - %s\n', bot.username, bot.id);
 });
 
-//bot.setPrescence({game: {type: 0, name: "cf start"}});
+bot.setPresence({game: {type: 0, name: "cf start"}});
 
 var circle = ":black_circle: ";
-prefix = "cf";
-var red = ":red_circle: "
-var blue = ":large_blue_circle: "
+var prefix = "cf";
+var red = ":red_circle: ";
+var blue = ":large_blue_circle: ";
 
 var Game = {
     present: false, 
@@ -26,6 +26,7 @@ var Game = {
     lastPlaced: null
 }
 
+var timestamp
 var lastPlayer
 var gs1 = [circle, circle, circle, circle, circle, circle, circle];
 var gs2 = [circle, circle, circle, circle, circle, circle, circle];
@@ -48,6 +49,8 @@ bot.on("message", function (user, userID, channelID, message, event)
             draw();
             Game.present = true
             Game.player1 = author
+            timestamp = new Date();
+            console.log("new game started")
         }
     }
 
@@ -97,7 +100,7 @@ bot.on("message", function (user, userID, channelID, message, event)
             gs4 = [circle, circle, circle, circle, circle, circle, circle];
             gs5 = [circle, circle, circle, circle, circle, circle, circle];
             gs6 = [circle, circle, circle, circle, circle, circle, circle];
-            bot.sendMessage({to: channelID, message: "game resetted"})
+            bot.sendMessage({to: channelID, message: "game reset"})
         }
     }   
 
@@ -154,6 +157,7 @@ bot.on("message", function (user, userID, channelID, message, event)
          else {bot.sendMessage({to: channelID, message: "That row is full"});}
          Game.lastPlaced = author;
          draw();
+         timestamp = new Date();
     }
 
     function draw(){
@@ -190,5 +194,22 @@ bot.on("message", function (user, userID, channelID, message, event)
         {
             bot.sendMessage({to: channelID, message: " https://discordapp.com/oauth2/authorize?client_id=374338545185193984&scope=bot&permissions=3072"});
         }
+    }
+
+    if(new Date() - timestamp >  60000){
+        console.log("Game set to false");
+        Game.present = false;
+        Game.player1 = null;
+        Game.player2 = null;
+    }
+
+    function sMessage(msg){
+        bot.sendMessage({to: channelID, message: msg});
+    }
+
+    if (Game.present == 1){
+        bot.setPresence({game: {type: 0, name: Game.player1 + " & " + Game.player2}});
+    } else{
+        bot.setPresence({game: {type: 0, name: "cf start"}});        
     }
 });
