@@ -1,9 +1,3 @@
-//todo: give start attributes, like emoticon choices. 
-// Make a help
-// can place wrong color
-// shortcut b and r 
-
-
 var Discord = require('discord.io');
 var pjson = require('./package.json');
 
