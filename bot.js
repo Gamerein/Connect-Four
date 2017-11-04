@@ -1,7 +1,11 @@
 //todo: give start attributes, like emoticon choices. 
 // Make a help
+// can place wrong color
+// shortcut b and r 
+
 
 var Discord = require('discord.io');
+var pjson = require('./package.json');
 
 var bot = new Discord.Client({
     token: "token_here",
@@ -21,8 +25,10 @@ var blue = ":large_blue_circle: ";
 
 var Game = {
     present: false, 
-    player1: null, 
-    player2: null,
+    player1: {name : null, color: null},
+    player2: {name : null, color: null},
+    colorPlayer1: null,
+    colorPlayer2: null,
     lastPlaced: null
 }
 
@@ -43,14 +49,23 @@ bot.on("message", function (user, userID, channelID, message, event)
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();
 
-        if(command == "start")
+        if(command.startsWith("start") == true)
         {
+            var arguments = command.replace("start ", "").split("|");
+
+            if (command.includes("red:") == true) {
+                red = arguments.filter(function (input){return input.startsWith("red:")}).toString().replace("red: ", "");
+            }
+            if (command.includes("blue:") == true){
+                    blue = arguments.filter(function (input){return input.startsWith("blue:")}).toString().replace("red: ", "");
+            }
+
             bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"});      
+            Game.player1.name = author;            
             draw();
-            Game.present = true
-            Game.player1 = author
+            Game.present = true;
             timestamp = new Date();
-            console.log("new game started")
+            console.log("new game started");
         }
     }
 
@@ -61,9 +76,9 @@ bot.on("message", function (user, userID, channelID, message, event)
 
         if(command == "join" && Game.present == true)
         {
-            bot.sendMessage({to: channelID, message: "`" + author + "` joined"})
-            if (author != Game.player1 || author != Game.player1){
-            Game.player2 = author
+            if (author != Game.player1.name && author != Game.player2.name){
+            bot.sendMessage({to: channelID, message: "`" + author + "` joined"})                
+            Game.player2.name = author
             draw();
             } else{
                 bot.sendMessage({to: channelID, message: "you have already joined"})
@@ -91,15 +106,7 @@ bot.on("message", function (user, userID, channelID, message, event)
         command = command.toLowerCase();        
         if (command == "reset")
         {
-            Game.present = false
-            Game.player1 = null
-            Game.player2 = null
-            gs1 = [circle, circle, circle, circle, circle, circle, circle];
-            gs2 = [circle, circle, circle, circle, circle, circle, circle];
-            gs3 = [circle, circle, circle, circle, circle, circle, circle];
-            gs4 = [circle, circle, circle, circle, circle, circle, circle];
-            gs5 = [circle, circle, circle, circle, circle, circle, circle];
-            gs6 = [circle, circle, circle, circle, circle, circle, circle];
+            reset();
             bot.sendMessage({to: channelID, message: "game reset"})
         }
     }   
@@ -108,9 +115,11 @@ bot.on("message", function (user, userID, channelID, message, event)
     {
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();        
-        if (command.includes("place") == true && Game.present == true){
-            if(Game.lastPlaced != author && Game.player1 == author || Game.lastPlaced != author && Game.player2 == author){
-                if(command.includes("red") == true)
+        if (command.includes("place") == true && Game.present == true)
+        {
+            if(Game.lastPlaced != author && Game.player1.name == author || Game.lastPlaced != author && Game.player2.name == author)
+            {
+                if(command.includes("red") == true || command.includes("r") == true)
                 {
                     if(command.includes("1") == true){place(red, 0);} 
                     else if(command.includes("2") == true){place(red, 1);}
@@ -121,7 +130,7 @@ bot.on("message", function (user, userID, channelID, message, event)
                     else if(command.includes("7") == true){place(red, 6);}
                 }
 
-                else if(command.includes("blue") == true)
+                else if(command.includes("blue") == true || command.includes("b") == true)
                 {
                     if(command.includes("1") == true){place(blue, 0);} 
                     else if(command.includes("2") == true){place(blue, 1);}
@@ -129,17 +138,19 @@ bot.on("message", function (user, userID, channelID, message, event)
                     else if(command.includes("4") == true){place(blue, 3);}
                     else if(command.includes("5") == true){place(blue, 4);}
                     else if(command.includes("6") == true){place(blue, 5);}
+                    else if(command.includes("7") == true){place(blue, 6);}
                 }
                 if (command.includes("blue") == false && command.includes("red") == false) {
                     bot.sendMessage({to: channelID, message: "No color given"});                
                 }
 
-                if (command.includes("1") == false && command.includes("2") == false && command.includes("3") == false && command.includes("4") == false && command.includes("5") == false && command.includes("6") == false ){
+                if (command.includes("1") == false && command.includes("2") == false && command.includes("3") == false && command.includes("4") == false && command.includes("5") == false && command.includes("6") == false  && command.includes("7") == false){
                     bot.sendMessage({to: channelID, message: "No row given"});                
                 }
-            } else{
-                bot.sendMessage({to:channelID, message: "You already placed!"});
-            }
+            } else if(author != Game.player1.name && author != Game.player2.name){
+                sMessage("You aren't participating!")
+                }else {bot.sendMessage({to:channelID, message: "You already placed!"});}
+        
         } else if(command.includes("place") == true && Game.present != true){
                 bot.sendMessage({to: channelID, message: "No game started"});
         }
@@ -147,21 +158,38 @@ bot.on("message", function (user, userID, channelID, message, event)
 
 
     function place(color, row){
-         if (gs1[row] == circle){gs1[row] = color;}
-         else if (gs2[row] == circle){gs2[row] = color;}
-         else if (gs3[row] == circle){gs3[row] = color;}
-         else if (gs4[row] == circle){gs4[row] = color;}
-         else if (gs5[row] == circle){gs5[row] = color;}
-         else if (gs6[row] == circle){gs6[row] = color;}
+        if (colorHandler(color) == true){
+            if (gs1[row] == circle){gs1[row] = color;}
+            else if (gs2[row] == circle){gs2[row] = color;}
+            else if (gs3[row] == circle){gs3[row] = color;}
+            else if (gs4[row] == circle){gs4[row] = color;}
+            else if (gs5[row] == circle){gs5[row] = color;}
+            else if (gs6[row] == circle){gs6[row] = color;}
 
-         else {bot.sendMessage({to: channelID, message: "That row is full"});}
-         Game.lastPlaced = author;
-         draw();
-         timestamp = new Date();
+            else {bot.sendMessage({to: channelID, message: "That row is full"});}
+            Game.lastPlaced = author;
+            draw();
+            timestamp = new Date();
+        }
+    }
+
+    function colorHandler(color){
+        if (author == Game.player1.name){
+            if (Game.player1.color == null && color != Game.player2.color){
+                Game.player1.color = color;
+                return true
+            } else {sMessage("That's not your color..."); return false}
+        }
+        if (author == Game.player2.name){
+            if (Game.player2.color == null && color != Game.player1.color){
+                Game.player2.color = color;
+                return true
+            } else {sMessage("That's not your color..."); return false}
+        }
     }
 
     function draw(){
-        bot.sendMessage({to: channelID, message: "Game between: `" + Game.player1 + "` and `" + Game.player2 + "`"});                
+        bot.sendMessage({to: channelID, message: "Game between: `" + Game.player1.name + "` and `" + Game.player2.name + "`"});                
         bot.sendMessage({to: channelID, message: gs6.join("") + "\n" + gs5.join("") + "\n" + gs4.join("") + "\n" + gs3.join("") + "\n"+  gs2.join("") + "\n" + gs1.join("") });
     }   
         
@@ -196,20 +224,39 @@ bot.on("message", function (user, userID, channelID, message, event)
         }
     }
 
-    if(new Date() - timestamp >  60000){
-        console.log("Game set to false");
-        Game.present = false;
-        Game.player1 = null;
-        Game.player2 = null;
-    }
+    //if(Game.present == true && new Date() - timestamp >  60000){
+    //    console.log("Game set to false");
+    //    reset();
+    //}
 
     function sMessage(msg){
         bot.sendMessage({to: channelID, message: msg});
     }
 
     if (Game.present == 1){
-        bot.setPresence({game: {type: 0, name: Game.player1 + " & " + Game.player2}});
+        bot.setPresence({game: {type: 0, name: Game.player1.name + " & " + Game.player2.name}});
     } else{
         bot.setPresence({game: {type: 0, name: "cf start"}});        
+    }
+
+    function reset(){
+        red = ":red_circle: ";
+        blue = ":large_blue_circle: ";
+        Game = {
+            present: false, 
+            player1: {name : null, color: null},
+            player2: {name : null, color: null},
+            colorPlayer1: null,
+            colorPlayer2: null,
+            lastPlaced: null
+        };
+        timestamp = null;
+        lastPlayer = null;
+        gs1 = [circle, circle, circle, circle, circle, circle, circle];
+        gs2 = [circle, circle, circle, circle, circle, circle, circle];
+        gs3 = [circle, circle, circle, circle, circle, circle, circle];
+        gs4 = [circle, circle, circle, circle, circle, circle, circle];
+        gs5 = [circle, circle, circle, circle, circle, circle, circle];
+        gs6 = [circle, circle, circle, circle, circle, circle, circle];
     }
 });
