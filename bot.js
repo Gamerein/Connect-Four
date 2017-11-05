@@ -64,7 +64,6 @@ bot.on("message", function (user, userID, channelID, message, event)
             Game.present = true;
             timestamp = new Date();
             console.log("new game started");
-            throw "test error"
         }
     }
 
@@ -80,10 +79,10 @@ bot.on("message", function (user, userID, channelID, message, event)
             Game.player2.name = author
             draw();
             } else{
-                bot.sendMessage({to: channelID, message: "you have already joined"})
+                throw "you have already joined";
             }
         } else if(command == "join" && Game.present != true) {
-            bot.sendMessage({to: channelID, message: "no game started"})
+            throw "no game started";
         }
     }
 
@@ -96,7 +95,7 @@ bot.on("message", function (user, userID, channelID, message, event)
         {
             draw();
         } else if(command == "show" && Game.present == false){
-            bot.sendMessage({to: channelID, message: "no game started"});
+            throw "no game started";
         }
     }
     if (message.substring(0, prefix.length) == prefix) 
@@ -140,18 +139,18 @@ bot.on("message", function (user, userID, channelID, message, event)
                     else if(command.includes("7") == true){place(blue, 6);}
                 }
                 if (command.includes("blue") == false && command.includes("red") == false) {
-                    bot.sendMessage({to: channelID, message: "No color given"});                
+                    throw "No color given";    
                 }
 
                 if (command.includes("1") == false && command.includes("2") == false && command.includes("3") == false && command.includes("4") == false && command.includes("5") == false && command.includes("6") == false  && command.includes("7") == false){
-                    bot.sendMessage({to: channelID, message: "No row given"});                
+                    throw"No row given";          
                 }
             } else if(author != Game.player1.name && author != Game.player2.name){
-                sMessage("You aren't participating!")
-                }else {bot.sendMessage({to:channelID, message: "You already placed!"});}
+                throw"You aren't participating!";
+                }else {throw "You already placed!";}
         
         } else if(command.includes("place") == true && Game.present != true){
-                bot.sendMessage({to: channelID, message: "No game started"});
+                throw "No game started";
         }
     }
 
@@ -165,7 +164,7 @@ bot.on("message", function (user, userID, channelID, message, event)
             else if (gs5[row] == circle){gs5[row] = color;}
             else if (gs6[row] == circle){gs6[row] = color;}
 
-            else {bot.sendMessage({to: channelID, message: "That row is full"});}
+            else {throw "That row is full";}
             Game.lastPlaced = author;
             draw();
             timestamp = new Date();
@@ -198,7 +197,7 @@ bot.on("message", function (user, userID, channelID, message, event)
         if (command.startsWith("eval") == true && author == "Gamerein"){
             try {eval(command.substring(5));}
             catch(err){
-                bot.sendMessage({to: channelID, message:err})
+                bot.sendMessage({to: channelID, message: ":x:**EVAL ERROR:** *" + err + "*"})
             }
         }
     }
@@ -249,7 +248,7 @@ bot.on("message", function (user, userID, channelID, message, event)
         gs5 = [circle, circle, circle, circle, circle, circle, circle];
         gs6 = [circle, circle, circle, circle, circle, circle, circle];
     }}catch(err){
-        bot.sendMessage({to: channelID, message: ":x:*ERROR:* " + err});
+        bot.sendMessage({to: channelID, message: ":x:**ERROR:** *" + err + "*"});
     }
 
     if (message.substring(0, prefix.length) == prefix) 
