@@ -1,3 +1,5 @@
+// Replace all error message with an actual error
+
 var Discord = require('discord.io');
 var pjson = require('./package.json');
 
@@ -36,7 +38,9 @@ var gs5 = [circle, circle, circle, circle, circle, circle, circle];
 var gs6 = [circle, circle, circle, circle, circle, circle, circle];
 
 bot.on("message", function (user, userID, channelID, message, event)
-{
+{   
+
+    try{
     var author = event.d.author.username
     if (message.substring(0, prefix.length) == prefix)
     {
@@ -60,6 +64,7 @@ bot.on("message", function (user, userID, channelID, message, event)
             Game.present = true;
             timestamp = new Date();
             console.log("new game started");
+            throw "test error"
         }
     }
 
@@ -202,15 +207,6 @@ bot.on("message", function (user, userID, channelID, message, event)
     {
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();
-        if (command == "kill" && author == "Gamerein"){
-            throw "killed by " + author;
-        }
-    }
-
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        command = command.toLowerCase();
 
         if(command == "invite")
         {
@@ -252,5 +248,17 @@ bot.on("message", function (user, userID, channelID, message, event)
         gs4 = [circle, circle, circle, circle, circle, circle, circle];
         gs5 = [circle, circle, circle, circle, circle, circle, circle];
         gs6 = [circle, circle, circle, circle, circle, circle, circle];
+    }}catch(err){
+        bot.sendMessage({to: channelID, message: ":x:*ERROR:* " + err});
     }
+
+    if (message.substring(0, prefix.length) == prefix) 
+    {
+        var command = message.substring(prefix.length + 1);
+        command = command.toLowerCase();
+        if (command == "kill" && author == "Gamerein"){
+            throw "killed by " + author;
+        }
+    }
+
 });
