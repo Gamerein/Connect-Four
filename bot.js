@@ -1,4 +1,6 @@
-// Replace all error message with an actual error
+// Todo:
+// Fix async stuff
+// About command
 
 var Discord = require('discord.io');
 var pjson = require('./package.json');
@@ -49,13 +51,13 @@ bot.on("message", function (user, userID, channelID, message, event)
 
         if(command.startsWith("start") == true)
         {
-            var arguments = command.replace("start ", "").split("|");
+            var arguments = command.replace("start", "").split("|");
 
             if (command.includes("red:") == true) {
-                red = arguments.filter(function (input){return input.startsWith("red:")}).toString().replace("red: ", "");
+                red = arguments.filter(function (input){return input.replace(" ", "").startsWith("red:")}).toString().replace("red:", "").replace(" ", "");
             }
             if (command.includes("blue:") == true){
-                    blue = arguments.filter(function (input){return input.startsWith("blue:")}).toString().replace("red: ", "");
+                    blue = arguments.filter(function (input){return input.replace(" ", "").startsWith("blue:")}).toString().replace("blue:", "").replace(" ", "");
             }
 
             bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"});      
@@ -77,7 +79,6 @@ bot.on("message", function (user, userID, channelID, message, event)
             if (author != Game.player1.name && author != Game.player2.name){
             bot.sendMessage({to: channelID, message: "`" + author + "` joined"})                
             Game.player2.name = author
-            draw();
             } else{
                 throw "you have already joined";
             }
@@ -113,7 +114,7 @@ bot.on("message", function (user, userID, channelID, message, event)
     {
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();        
-        if (command.includes("place") == true && Game.present == true)
+        if (command.startsWith("place") == true && Game.present == true)
         {
             if(Game.lastPlaced != author && Game.player1.name == author || Game.lastPlaced != author && Game.player2.name == author)
             {
@@ -138,7 +139,7 @@ bot.on("message", function (user, userID, channelID, message, event)
                     else if(command.includes("6") == true){place(blue, 5);}
                     else if(command.includes("7") == true){place(blue, 6);}
                 }
-                if (command.includes("blue") == false && command.includes("red") == false) {
+                if (command.includes("blue") == false && command.includes("red") == false && command.includes("b") == false && command.includes("r") == false) {
                     throw "No color given";    
                 }
 
@@ -173,16 +174,18 @@ bot.on("message", function (user, userID, channelID, message, event)
 
     function colorHandler(color){
         if (author == Game.player1.name){
-            if (Game.player1.color == null && color != Game.player2.color){
+            if (color == Game.player1.color) {return true}
+            else if (Game.player1.color == null && color != Game.player2.color || Game.player1.color == null && Game.player2.color == null) {
                 Game.player1.color = color;
                 return true
-            } else {sMessage("That's not your color..."); return false}
+            } else {throw "That's not your color..."; return false}
         }
         if (author == Game.player2.name){
-            if (Game.player2.color == null && color != Game.player1.color){
+            if (color == Game.player2.color) {return true}            
+            else if (Game.player2.color == null && color != Game.player1.color || Game.player1.color == null && Game.player2.color == null) {
                 Game.player2.color = color;
                 return true
-            } else {sMessage("That's not your color..."); return false}
+            } else {throw "That's not your color..."; return false}
         }
     }
 
