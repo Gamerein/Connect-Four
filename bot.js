@@ -1,6 +1,9 @@
 // Todo:
 // Fix async stuff
 // About command
+// author to ID
+// cf show should give nick
+// remove needed color in cf place
 
 var Discord = require('discord.io');
 var pjson = require('./package.json');
@@ -16,10 +19,10 @@ bot.on('ready', function(event) {
 
 bot.setPresence({game: {type: 0, name: "cf start"}});
 
-var circle = ":black_circle: ";
+var circle = ":black_circle:";
 var prefix = "cf";
-var red = ":red_circle: ";
-var blue = ":large_blue_circle: ";
+var red = ":red_circle:";
+var blue = ":large_blue_circle:";
 
 var Game = {
     present: false, 
@@ -30,14 +33,7 @@ var Game = {
     lastPlaced: null
 }
 
-var timestamp
-var lastPlayer
-var gs1 = [circle, circle, circle, circle, circle, circle, circle];
-var gs2 = [circle, circle, circle, circle, circle, circle, circle];
-var gs3 = [circle, circle, circle, circle, circle, circle, circle];
-var gs4 = [circle, circle, circle, circle, circle, circle, circle];
-var gs5 = [circle, circle, circle, circle, circle, circle, circle];
-var gs6 = [circle, circle, circle, circle, circle, circle, circle];
+gs1 = gs2 = gs3 = gs4 = gs5 = gs6 = [circle, circle, circle, circle, circle, circle, circle];
 
 bot.on("message", function (user, userID, channelID, message, event)
 {   
@@ -57,12 +53,12 @@ bot.on("message", function (user, userID, channelID, message, event)
                 red = arguments.filter(function (input){return input.replace(" ", "").startsWith("red:")}).toString().replace("red:", "").replace(" ", "");
             }
             if (command.includes("blue:") == true){
-                    blue = arguments.filter(function (input){return input.replace(" ", "").startsWith("blue:")}).toString().replace("blue:", "").replace(" ", "");
+                blue = arguments.filter(function (input){return input.replace(" ", "").startsWith("blue:")}).toString().replace("blue:", "").replace(" ", "");
             }
 
-            bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"});      
-            Game.player1.name = author;            
+            bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"});
             draw();
+            Game.player1.name = author;            
             Game.present = true;
             timestamp = new Date();
             console.log("new game started");
@@ -189,9 +185,10 @@ bot.on("message", function (user, userID, channelID, message, event)
         }
     }
 
-    function draw(){
-        bot.sendMessage({to: channelID, message: "Game between: `" + Game.player1.name + "` and `" + Game.player2.name + "`"});                
-        bot.sendMessage({to: channelID, message: gs6.join("") + "\n" + gs5.join("") + "\n" + gs4.join("") + "\n" + gs3.join("") + "\n"+  gs2.join("") + "\n" + gs1.join("") });
+    function draw()
+    {
+        var playingfield = gs6.join(" ") + "\n" + gs5.join(" ") + "\n" + gs4.join(" ") + "\n" + gs3.join(" ") + "\n"+  gs2.join(" ") + "\n" + gs1.join(" ");
+        bot.sendMessage({to: channelID, message: "Game between: `" + Game.player1.name + "` and `" + Game.player2.name + "`" + "\n" + playingfield});                
     }   
         
     if (message.substring(0, prefix.length) == prefix) 
@@ -232,8 +229,8 @@ bot.on("message", function (user, userID, channelID, message, event)
     }
 
     function reset(){
-        red = ":red_circle: ";
-        blue = ":large_blue_circle: ";
+        red = ":red_circle:";
+        blue = ":large_blue_circle:";
         Game = {
             present: false, 
             player1: {name : null, color: null},
@@ -242,15 +239,9 @@ bot.on("message", function (user, userID, channelID, message, event)
             colorPlayer2: null,
             lastPlaced: null
         };
-        timestamp = null;
-        lastPlayer = null;
-        gs1 = [circle, circle, circle, circle, circle, circle, circle];
-        gs2 = [circle, circle, circle, circle, circle, circle, circle];
-        gs3 = [circle, circle, circle, circle, circle, circle, circle];
-        gs4 = [circle, circle, circle, circle, circle, circle, circle];
-        gs5 = [circle, circle, circle, circle, circle, circle, circle];
-        gs6 = [circle, circle, circle, circle, circle, circle, circle];
+        gs1 = gs2 = gs3 = gs4 = gs5 = gs6 = [circle, circle, circle, circle, circle, circle, circle];
     }}catch(err){
+        console.log(`ERROR: ${err}`)
         bot.sendMessage({to: channelID, message: ":x:**ERROR:** *" + err + "*"});
     }
 
