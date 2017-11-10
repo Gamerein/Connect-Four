@@ -17,10 +17,10 @@ bot.on('ready', function(event) {
     console.log(`Logged in as ${bot.username} - ${bot.id}`);
 });
 
-bot.setPresence({game: {type: 0, name: "cf start"}});
+bot.setPresence({game: {type: 0, name: `${prefix} start`}});
 
 var circle = ":black_circle:";
-var prefix = "cb";
+var prefix = "cf";
 var red = ":red_circle:";
 var blue = ":large_blue_circle:";
 
