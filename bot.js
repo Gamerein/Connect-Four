@@ -14,13 +14,13 @@ var bot = new Discord.Client({
 });
 
 bot.on('ready', function(event) {
-    console.log('Logged in as %s - %s\n', bot.username, bot.id);
+    console.log(`Logged in as ${bot.username} - ${bot.id}`);
 });
 
 bot.setPresence({game: {type: 0, name: "cf start"}});
 
 var circle = ":black_circle:";
-var prefix = "cf";
+var prefix = "cb";
 var red = ":red_circle:";
 var blue = ":large_blue_circle:";
 
@@ -33,11 +33,16 @@ var Game = {
     lastPlaced: null
 }
 
-gs1 = gs2 = gs3 = gs4 = gs5 = gs6 = [circle, circle, circle, circle, circle, circle, circle];
+// A way to define this more efficient?
+var gs1 = [circle, circle, circle, circle, circle, circle, circle];
+var gs2 = [circle, circle, circle, circle, circle, circle, circle];
+var gs3 = [circle, circle, circle, circle, circle, circle, circle];
+var gs4 = [circle, circle, circle, circle, circle, circle, circle];
+var gs5 = [circle, circle, circle, circle, circle, circle, circle];
+var gs6 = [circle, circle, circle, circle, circle, circle, circle];
 
 bot.on("message", function (user, userID, channelID, message, event)
 {   
-
     try{
     var author = event.d.author.username
     if (message.substring(0, prefix.length) == prefix)
@@ -57,8 +62,8 @@ bot.on("message", function (user, userID, channelID, message, event)
             }
 
             bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"});
-            draw();
             Game.player1.name = author;            
+            draw();
             Game.present = true;
             timestamp = new Date();
             console.log("new game started");
@@ -239,8 +244,13 @@ bot.on("message", function (user, userID, channelID, message, event)
             colorPlayer2: null,
             lastPlaced: null
         };
-        gs1 = gs2 = gs3 = gs4 = gs5 = gs6 = [circle, circle, circle, circle, circle, circle, circle];
-    }}catch(err){
+        gs1 = [circle, circle, circle, circle, circle, circle, circle];
+        gs2 = [circle, circle, circle, circle, circle, circle, circle];
+        gs3 = [circle, circle, circle, circle, circle, circle, circle];
+        gs4 = [circle, circle, circle, circle, circle, circle, circle];
+        gs5 = [circle, circle, circle, circle, circle, circle, circle];
+        gs6 = [circle, circle, circle, circle, circle, circle, circle];
+            }}catch(err){
         console.log(`ERROR: ${err}`)
         bot.sendMessage({to: channelID, message: ":x:**ERROR:** *" + err + "*"});
     }
