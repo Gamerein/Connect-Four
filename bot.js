@@ -4,25 +4,52 @@
 // author to ID
 // cf show should give nick
 // remove needed color in cf place
+// Make prefix work on uppercase
+// Place whole game in embed?
+// Make config.json (with admins)
+// Rewrite to discord.js
+// shouldn't output thrown errors into the console.
+// Dont say Game between `Me` and `NULL`
+// Make new token and client secret
+// cf show edit messages?
+// Bot still uses spaces when using the start arguments
+// Make an object for every user with game data for cross server usage?
+// error if login failed
 
-var Discord = require('discord.io');
-var pjson = require('./package.json');
+const Discord = require('discord.io');
+const pjson = require('./package.json');
+
+//because you know, these are important
+const chalk = require('chalk');
+const Spinner = require('cli-spinner').Spinner;
 
 var bot = new Discord.Client({
-    token: "token_here",
+    token: "Mzc5NTM2MDI2MDUxMjgwODk2.DOw7ZQ.TPwWt2oEZXAIziA42g1D1Zz4BJk",
     autorun: true
 });
 
+var loader = new Spinner(`logging in. ${chalk.red("%s")}  `);
+loader.setSpinnerString("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏");
+loader.start();
+
 bot.on('ready', function(event) {
-    console.log(`Logged in as ${bot.username} - ${bot.id}`);
+    loader.stop(true);
+    console.log(`Logged in as ${chalk.green(bot.username)} - ${chalk.green(bot.id)}`);    
+    bot.setPresence({game: {type: 0, name: `${prefix} start`}});    
 });
 
-bot.setPresence({game: {type: 0, name: `${prefix} start`}});
+bot.on('disconnect', function(err, code) { 
+    bot.connect();
+});
+
 
 var circle = ":black_circle:";
-var prefix = "cf";
+var prefix = "cb";
 var red = ":red_circle:";
 var blue = ":large_blue_circle:";
+
+var ping
+var pingMessage = ":stopwatch: wasting time"
 
 var Game = {
     present: false, 
@@ -44,37 +71,42 @@ var gs6 = [circle, circle, circle, circle, circle, circle, circle];
 bot.on("message", function (user, userID, channelID, message, event)
 {   
     try{
-    var author = event.d.author.username
+
+    message = message.toLowerCase();
+    var authorID = event.d.author.id;
+    var author = event.d.author.username    
+
+    if (message.startsWith(`<@${bot.id}>`)){
+        sMessage("prefix: `" + prefix + "`")
+    }
+
     if (message.substring(0, prefix.length) == prefix)
     {
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();
 
+        //start
         if(command.startsWith("start") == true)
         {
-            var arguments = command.replace("start", "").split("|");
+            if (Game.present == false) {
+                var arguments = command.replace("start", "").split("|");
 
-            if (command.includes("red:") == true) {
-                red = arguments.filter(function (input){return input.replace(" ", "").startsWith("red:")}).toString().replace("red:", "").replace(" ", "");
-            }
-            if (command.includes("blue:") == true){
-                blue = arguments.filter(function (input){return input.replace(" ", "").startsWith("blue:")}).toString().replace("blue:", "").replace(" ", "");
-            }
+                if (command.includes("red:") == true) {
+                    red = arguments.filter((input)=>{return input.replace(" ", "").startsWith("red:")}).toString().replace("red:", "").replace(/\s/g, "");
+                }
+                if (command.includes("blue:") == true){
+                    blue = arguments.filter((input)=>{return input.replace(" ", "").startsWith("blue:")}).toString().replace("blue:", "").replace(/\s/g, "");
+                }
 
-            bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"});
-            Game.player1.name = author;            
-            draw();
-            Game.present = true;
-            timestamp = new Date();
-            console.log("new game started");
-        }
-    }
+                Game.present = true;
+                Game.player1.name = author;                
+                bot.sendMessage({to: channelID, message: "Game started by `" + author + "`  Join with `cf join`. Place a circle with `cf place <red/>blue> <row>`"}, (err, res)=>{
+                    draw();                    
+                });
+            } else{throw `A game is already present, type\`${prefix} reset\` to clear`;}
+        }  
 
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        command = command.toLowerCase();
-
+        //join
         if(command == "join" && Game.present == true)
         {
             if (author != Game.player1.name && author != Game.player2.name){
@@ -85,36 +117,23 @@ bot.on("message", function (user, userID, channelID, message, event)
             }
         } else if(command == "join" && Game.present != true) {
             throw "no game started";
-        }
-    }
+        }    
 
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        command = command.toLowerCase();
-
+        //show
         if(command == "show" && Game.present == true)
         {
             draw();
         } else if(command == "show" && Game.present == false){
             throw "no game started";
         }
-    }
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        command = command.toLowerCase();        
+
+        //reset
         if (command == "reset")
         {
             reset();
             bot.sendMessage({to: channelID, message: "game reset"})
         }
-    }   
 
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        command = command.toLowerCase();        
         if (command.startsWith("place") == true && Game.present == true)
         {
             if(Game.lastPlaced != author && Game.player1.name == author || Game.lastPlaced != author && Game.player2.name == author)
@@ -153,6 +172,23 @@ bot.on("message", function (user, userID, channelID, message, event)
         
         } else if(command.includes("place") == true && Game.present != true){
                 throw "No game started";
+        }
+
+        //ping
+        if (command == "ping"){
+            var startTime = new Date();
+            bot.sendMessage({to:channelID,message: pingMessage}, (err, res)=>{
+                let endTime = new Date();                
+                bot.editMessage({channelID,messageID:res.id,message: `ping: \`${endTime- startTime}\``});
+            });
+        }
+
+        if (command.startsWith("eval") == true && authorID === "138657194986962945"){
+            console.log("test")
+            try {eval(command.substring(5));}
+            catch(err){
+                bot.sendMessage({to: channelID, message: ":x:**EVAL ERROR:** *" + err + "*"})
+            }
         }
     }
 
@@ -196,28 +232,6 @@ bot.on("message", function (user, userID, channelID, message, event)
         bot.sendMessage({to: channelID, message: "Game between: `" + Game.player1.name + "` and `" + Game.player2.name + "`" + "\n" + playingfield});                
     }   
         
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        if (command.startsWith("eval") == true && author == "Gamerein"){
-            try {eval(command.substring(5));}
-            catch(err){
-                bot.sendMessage({to: channelID, message: ":x:**EVAL ERROR:** *" + err + "*"})
-            }
-        }
-    }
-
-    if (message.substring(0, prefix.length) == prefix) 
-    {
-        var command = message.substring(prefix.length + 1);
-        command = command.toLowerCase();
-
-        if(command == "invite")
-        {
-            bot.sendMessage({to: channelID, message: " https://discordapp.com/oauth2/authorize?client_id=374338545185193984&scope=bot&permissions=3072"});
-        }
-    }
-
     //if(Game.present == true && new Date() - timestamp >  60000){
     //    console.log("Game set to false");
     //    reset();
@@ -251,7 +265,7 @@ bot.on("message", function (user, userID, channelID, message, event)
         gs5 = [circle, circle, circle, circle, circle, circle, circle];
         gs6 = [circle, circle, circle, circle, circle, circle, circle];
             }}catch(err){
-        console.log(`ERROR: ${err}`)
+        console.log(chalk.red("ERROR: ") + chalk.redBright(err));
         bot.sendMessage({to: channelID, message: ":x:**ERROR:** *" + err + "*"});
     }
 
@@ -259,9 +273,8 @@ bot.on("message", function (user, userID, channelID, message, event)
     {
         var command = message.substring(prefix.length + 1);
         command = command.toLowerCase();
-        if (command == "kill" && author == "Gamerein"){
-            throw "killed by " + author;
+        if (command == "kill" && authorID === "138657194986962945"){
+            throw chalk.red("killed by " + author);
         }
     }
-
 });
