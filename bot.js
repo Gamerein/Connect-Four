@@ -44,7 +44,7 @@ bot.on('disconnect', function(err, code) {
 
 
 var circle = ":black_circle:";
-var prefix = "cb";
+var prefix = "cf";
 var red = ":red_circle:";
 var blue = ":large_blue_circle:";
 
