@@ -24,7 +24,7 @@ const chalk = require('chalk');
 const Spinner = require('cli-spinner').Spinner;
 
 var bot = new Discord.Client({
-    token: "Mzc5NTM2MDI2MDUxMjgwODk2.DOw7ZQ.TPwWt2oEZXAIziA42g1D1Zz4BJk",
+    token: "token_here",
     autorun: true
 });
 
