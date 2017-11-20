@@ -14,7 +14,8 @@
 // cf show edit messages?
 // Bot still uses spaces when using the start arguments
 // Make an object for every user with game data for cross server usage?
-// error if login failed
+// error if login failed or token is missing
+// make uptime calc
 
 const Discord = require('discord.io');
 const pjson = require('./package.json');
@@ -28,7 +29,7 @@ var bot = new Discord.Client({
     autorun: true
 });
 
-var loader = new Spinner(`logging in. ${chalk.red("%s")}  `);
+var loader = new Spinner(`logging in.. ${chalk.red("%s")}  `);
 loader.setSpinnerString("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏");
 loader.start();
 
@@ -72,7 +73,6 @@ bot.on("message", function (user, userID, channelID, message, event)
 {   
     try{
 
-    message = message.toLowerCase();
     var authorID = event.d.author.id;
     var author = event.d.author.username    
 
@@ -183,9 +183,10 @@ bot.on("message", function (user, userID, channelID, message, event)
             });
         }
 
-        if (command.startsWith("eval") == true && authorID === "138657194986962945"){
-            console.log("test")
-            try {eval(command.substring(5));}
+        //eval
+        if (message.substring(prefix.length + 1).startsWith("eval") == true && authorID === "138657194986962945"){
+            try {eval(message.substring(5 + prefix.length + 1));
+            }
             catch(err){
                 bot.sendMessage({to: channelID, message: ":x:**EVAL ERROR:** *" + err + "*"})
             }
